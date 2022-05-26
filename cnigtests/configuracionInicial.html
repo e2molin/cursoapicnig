@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Visor ejemplo</title>
+        <!-- Estilo de la API -->
+        <link type="text/css" rel="stylesheet" href="https://mapea-lite.desarrollo.guadaltel.es/api-core/assets/css/apiign.ol.min.css">
+        <!-- Estilos de los plugins añadidos -->
+        <link href="https://mapea-lite.desarrollo.guadaltel.es/api-core/plugins/toc/toc.ol.min.css" rel="stylesheet" />
+
+        <style type="text/css">
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+
+    </head>
+    <body>
+        
+        <!-- Ficheros  javascript de TURF-->
+        <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+        <!-- Ficheros javascript de la API -->
+        <script type="text/javascript" src="https://mapea-lite.desarrollo.guadaltel.es/api-core/vendor/browser-polyfill.js"></script>
+        <script type="text/javascript" src="https://mapea-lite.desarrollo.guadaltel.es/api-core/js/apiign.ol.min.js"></script>
+        <script type="text/javascript" src="https://mapea-lite.desarrollo.guadaltel.es/api-core/js/configuration.js"></script>
+        <!-- Ficheros  javascript de los plugins añadidos-->
+        <script type="text/javascript" src="https://mapea-lite.desarrollo.guadaltel.es/api-core/plugins/toc/toc.ol.min.js"></script>
+        
+        <!-- Contenedor principal del mapa -->
+        <div id="mapjs" class="m-container"></div>
+
+        <script type="text/javascript">
+            M.proxy(false)
+            M.config("backgroundlayers",
+                        [
+                          {
+                              "id": "1erMTN",
+                              "title": "Primer MTN",
+                              "layers": [
+                                  "WMTS*https://www.ign.es/wmts/primera-edicion-mtn?*catastrones*GoogleMapsCompatible*imagen*false*image/jpeg*false*false*true"
+                              ]
+                          },
+                          {
+                              "id": "imagen",
+                              "title": "Imagen",
+                              "layers": [
+                                  "WMTS*https://www.ign.es/wmts/pnoa-ma?*OI.OrthoimageCoverage*GoogleMapsCompatible*imagen*false*image/jpeg*false*false*true"
+                              ]
+                          },
+                          {
+                              "id": "hibrido",
+                              "title": "Híbrido",
+                              "layers": [
+                                  "WMTS*https://www.ign.es/wmts/pnoa-ma?*OI.OrthoimageCoverage*GoogleMapsCompatible*imagen*true*image/jpeg*false*false*true",
+                                  "WMTS*https://www.ign.es/wmts/ign-base?*IGNBaseOrto*GoogleMapsCompatible*Callejero*true*image/png*false*false*true"
+                              ]
+                          }
+                        ]
+          );
+          const mapjs = M.map({
+              container: 'mapjs', //id del contenedor del mapa
+              controls: ['panzoom', 'scale*true', 'scaleline', 'rotate', 'location', 'backgroundlayers'],
+              zoom: 5,
+              maxZoom: 20,
+              minZoom: 4,
+              center: [-467062.8225, 4683459.6216],
+          });
+
+        </script>
+
+    </body>
+</html>

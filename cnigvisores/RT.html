@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	<!-- fichero estilos -->
+	<link href="https://componentes.ign.es/api-core/assets/css/apiign.ol.min.css" rel="stylesheet" />
+	
+	<link href="https://componentes.cnig.es/api-core/plugins/sharemap/sharemap.ol.min.css" rel="stylesheet" />
+
+	<!-- ficheros javascript -->
+	<script type="text/javascript" src="http://10.67.33.22:8080/api-core/js/apiign.ol.min.js"></script>
+    <script type="text/javascript" src="http://10.67.33.22:8080/api-core/js/configuration.js"></script>
+	
+	<link type="text/css" rel="stylesheet" href="http://10.67.33.22:8080/api-core/assets/css/apiign.ol.min.css">
+	
+	   
+
+    <style>
+      .map {
+        height: 90vh;
+        width: 100%;
+      }
+	 </style>
+    <title>API-CNIG</title>
+  </head>
+  <body>
+    <h2>Mi segundo mapa con la API-CNIG</h2>
+    <div id="map" class="map" ></div>
+		<script type="text/javascript">
+			M.proxy(false);
+			mapajs = M.map({
+			   container:"map",
+			   controls: ['panzoom', 'scale*true', 'scaleline', 'rotate', 'location', 'backgroundlayers'],
+			   zoom: 3,
+			   center: [-700000, 4900000],
+			});
+			
+			
+			var listEstilosCapas = { }
+			function rndInt() { return (Math.floor(Math.random() * 255) + 1).toString(); };
+			var vectorStyle = function(feature, resolution) {
+					//console.log(feature)
+					
+					if (!(feature.getProperties()["tipo_viald"] in listEstilosCapas)){
+							var fill = new ol.style.Fill({
+								color: 'rgba('+rndInt()+','+rndInt()+','+rndInt()+',0.9)'
+							});
+				
+							var stroke = new ol.style.Stroke({
+										color: 'rgba('+rndInt()+','+rndInt()+','+rndInt()+',0.9)',
+										width:4
+							  });
+						
+							var circle = new ol.style.Circle({
+								  radius: 6,
+								  fill: fill,
+								  stroke: stroke
+							});
+							
+							  listEstilosCapas[feature.getProperties()["tipo_viald"]] = new ol.style.Style({
+																			fill: fill,
+																			stroke: stroke,
+																			image: circle
+																		  });
+						} 
+					
+					return listEstilosCapas[feature.getProperties()["tipo_viald"]]
+				  };
+			  
+			  var OL_capaMVT = new ol.layer.VectorTile({
+								  declutter: true,
+								  source: new ol.source.VectorTile({
+										attributions: " <a href=''>La Rioja y OSM</a>" ,
+										format: new ol.format.MVT(),
+										url: "http://10.67.33.45:7800/public.roadlink/{z}/{x}/{y}.pbf"
+									  }),
+								 style: vectorStyle,    
+							  })
+				OL_capaMVT.setZIndex(999999);
+			
+			const capaMVT = new M.layer.MVT({}, {});
+
+			mapajs.addLayers(capaMVT);
+			
+			capaMVT.getImpl().setOL3Layer(OL_capaMVT);
+
+		</script>
+  </body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	<!-- fichero estilos -->
+	<link href="https://componentes.ign.es/api-core/assets/css/apiign.ol.min.css" rel="stylesheet" />
+	<link href="https://componentes.cnig.es/api-core/plugins/sharemap/sharemap.ol.min.css" rel="stylesheet" />
+
+	<!-- ficheros javascript -->
+	<script type="text/javascript" src="http://10.67.33.22:8080/api-core/js/apiign.ol.min.js"></script>
+    <script type="text/javascript" src="http://10.67.33.22:8080/api-core/js/configuration.js"></script>
+	
+	<link type="text/css" rel="stylesheet" href="http://10.67.33.22:8080/api-core/assets/css/apiign.ol.min.css">
+	
+	   
+
+    <style>
+      .map {
+        height: 90vh;
+        width: 100%;
+      }
+	 </style>
+    <title>API-CNIG</title>
+  </head>
+  <body>
+    <h2>SIOSE</h2>
+    <div id="map" class="map" ></div>
+	<!-- Popup -->
+	<div id="popup" ></div>
+		<script type="text/javascript">
+			M.proxy(false);
+			mapajs = M.map({
+			   container:"map",
+			   controls: ['panzoom', 'scale*true', 'scaleline', 'rotate', 'location', 'backgroundlayers'],
+			   zoom: 6,
+			   center: [-700000, 4900000],
+			});
+
+			var mapaOL = mapajs.getMapImpl();
+			
+			
+			var listEstilosCapas = { }
+			function rndInt() { return (Math.floor(Math.random() * 255) + 1).toString(); };
+			var vectorStyle = function(feature, resolution) {
+					//console.log(feature)
+					
+					if (!(feature.getProperties()["iberpix_valor"] in listEstilosCapas)){
+							var fill = new ol.style.Fill({
+								color: 'rgba('+rndInt()+','+rndInt()+','+rndInt()+',0.3)'
+							});
+				
+							var stroke = new ol.style.Stroke({
+										color: 'rgba('+rndInt()+','+rndInt()+','+rndInt()+',0.6)',
+										width:2
+							  });
+						
+							var circle = new ol.style.Circle({
+								  radius: 6,
+								  fill: fill,
+								  stroke: stroke
+							});
+							
+							  listEstilosCapas[feature.getProperties()["iberpix_valor"]] = new ol.style.Style({
+																			fill: fill,
+																			stroke: stroke,
+																			image: circle
+																		  });
+						} 
+					
+					return listEstilosCapas[feature.getProperties()["iberpix_valor"]]
+				  };
+			  
+			  var OL_capaMVT = new ol.layer.VectorTile({
+								  declutter: true,
+								  source: new ol.source.VectorTile({
+										attributions: " <a href=''>La Rioja y OSM</a>" ,
+										format: new ol.format.MVT(),
+										url: "http://10.67.33.45:7800/public.siose2014/{z}/{x}/{y}.pbf"
+									  }),
+								 style: vectorStyle,    
+								 minZoom: 13,
+								 maxZoom: 20,
+								 preload:1
+							  })
+				OL_capaMVT.setZIndex(999999);
+			
+			const capaMVT = new M.layer.MVT({}, {});
+
+			mapajs.addLayers(capaMVT);
+			
+			capaMVT.getImpl().setOL3Layer(OL_capaMVT);
+			
+			const popup = new ol.Overlay({
+				element: document.getElementById('popup'),
+				offset: [15, 15],
+  				stopEvent: false,
+				});
+			mapaOL.addOverlay(popup);
+
+
+			mapaOL.on('pointermove', function (evt) {
+				
+				mapaOL.forEachFeatureAtPixel(evt.pixel, function (f) {
+
+					const element = popup.getElement();
+					const coordinate = evt.coordinate;
+					var cadOUT = '<hr/><table style="background: aliceblue;">';
+					for(var value in f.getProperties()){ 
+						cadOUT = cadOUT + 
+							`
+							<tr><td><span title=${value}></span> ${value}: ${f.get(value)}</td></tr>
+							`;
+					};
+					cadOUT = cadOUT +  "</table><hr/>";
+					element.innerHTML = cadOUT;
+					popup.setPosition(coordinate);
+					return true;
+
+				});
+
+			});
+
+
+
+
+		</script>
+  </body>
+</html>

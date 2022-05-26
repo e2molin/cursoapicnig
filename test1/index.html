@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="codemirror/lib/codemirror.css" rel="stylesheet">
+  <!-- Themes -->
+  <link href="codemirror/theme/dracula.css" rel="stylesheet">
+  <!-- Addons -->
+  <link href="codemirror/addon/hint/show-hint.css" rel="stylesheet">
+</head>
+<body>
+  <textarea name="" id="codeEditor" cols="30" rows="10">
+    <p>Paragraph</p>
+  </textarea>
+  <script src="codemirror/lib/codemirror.js"></script>
+  <!-- Diccionarios -->
+  <script src="codemirror/mode/xml/xml.js"></script>
+  <script src="codemirror/mode/css/css.js"></script>
+  <!-- Complementos -->
+  <script src="codemirror/addon/edit/closetag.js"></script>
+  <script src="codemirror/addon/hint/show-hint.js"></script>
+  <script src="codemirror/addon/hint/css-hint.js"></script>
+
+  <script>
+    var editor= CodeMirror.fromTextArea(document.getElementById('codeEditor'),{
+      mode:"css",
+      theme: "dracula",
+      lineNumbers: true,
+      autoCloseTags: true,
+      tabSize:5,
+      extraKeys:{"Ctrl-Space": "autocomplete"},
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="cnig" content="yes">
+    <title>Visor base</title>
+    <!-- Estilo de la API -->
+    <link type="text/css" rel="stylesheet" href="http://10.67.33.22:8080/api-core/assets/css/apiign.ol.min.css">
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/1.13.0/mapbox-gl.css">
+
+
+    <style>
+        body{
+            height: 98vh;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Contenedor principal del mapa -->
+    <div id="mapjs" class="m-container"></div>
+    <!-- Ficheros javascript de la API -->
+    <script type="text/javascript" src="http://10.67.33.22:8080/api-core/vendor/browser-polyfill.js"></script>
+    <script type="text/javascript" src="http://10.67.33.22:8080/api-core/js/apiign.ol.min.js"></script>
+    <script type="text/javascript" src="http://10.67.33.22:8080/api-core/js/configuration.js"></script>
+
+    <link href="http://10.67.33.22:8080/api-core/plugins/backimglayer/backimglayer.ol.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="http://10.67.33.22:8080/api-core/plugins/backimglayer/backimglayer.ol.min.js"></script>
+
+
+
+    <script type="text/javascript">
+        // Configuraci�n del mapa
+        M.proxy(false);
+        const mapjs = M.map({
+            container: 'mapjs', //id del contenedor del mapa
+            controls: ['panzoom', 'scale*true', 'scaleline', 'rotate', 'location', 'getfeatureinfo'],
+            zoom: 5,
+            maxZoom: 20,
+            minZoom: 4,
+            center: [-467062.8225, 4683459.6216],
+        });
+        
+        
+        // Accedemos al OL
+        var mapaOL = mapjs.getMapImpl();    
+
+		// var TMSLayer = new ol.layer.Tile({
+		//   source: new ol.source.XYZ({
+		// 	url: "https://tms-pnoa-ma.idee.es/1.0.0/pnoa-ma/{z}/{x}/{-y}.jpeg",
+        //     // maxZoom: 19,
+        //     // minZoom: 4
+		//   })
+		// });
+		
+        // TMSLayer.setZIndex(99999999);
+        // TMSLayer.getSource().tileGrid.maxZoom = 16
+		
+        var capaTMS = new M.layer.TMS(
+                        //Params capa
+                        {
+                            url: 'https://tms-pnoa-ma.idee.es/1.0.0/pnoa-ma/{z}/{x}/{-y}.jpeg',
+                            name: 'TMSBaseIGN',
+                            projection: 'EPSG:3857',
+                            visibility: true,
+                        },
+                        //Options capa
+                        {},
+                        //vendorOptions capa
+                        { 
+                        //   opacity:0.5,
+                        //   zDirection:1
+                        //   maxZoom: 16,
+                        //   minZoom:5,
+                        //   source: new ol.source.XYZ({
+                        //     tileGrid: new ol.tilegrid.TileGrid({ maxZoom: 16, minZoom:5})
+		                //          })
+                        });
+        
+        //capaTMS_OL = capaTMS.getImpl().getOL3Layer();
+        //capaTMS_OL.getSource().tileGrid.maxZoom = 16
+
+        function capaTMS_func() {
+            capaTMS_OL = capaTMS.getImpl().getOL3Layer();
+            capaTMS_OL.getSource().tileGrid.maxZoom = 16;
+            return capaTMS
+        }
+
+        mapjs.on(M.evt.ADDED_LAYER, function(e) {
+            console.log(e)
+            console.log('Evento M.evt.ADDED_LAYER: se ha añadido una capa al mapa');
+            if (e[0].getImpl().name == "TMSBaseIGN"){
+                capaTMS_func()
+            }
+        });
+
+        const mp = new M.plugin.BackImgLayer({
+            position: 'TR',
+            collapsible: true,
+            collapsed: true,
+            layerId: 0,
+            columnsNumber: 2,
+            layerVisibility: true,
+            layerOpts: [{
+                    id: 'mapa',
+                    preview: 'plugins/backimglayer/images/svqmapa.png', // ruta relativa, edite por la deseada
+                    title: 'Mapa',
+                    layers: [new M.layer.WMTS({
+                        url: 'http://www.ign.es/wmts/ign-base?',
+                        name: 'IGNBaseTodo',
+                        legend: 'Mapa IGN',
+                        matrixSet: 'GoogleMapsCompatible',
+                        transparent: false,
+                        displayInLayerSwitcher: false,
+                        queryable: false,
+                        visible: true,
+                        format: 'image/jpeg',
+                    })],
+                },
+                {
+                    id: 'imagen',
+                    title: 'Imagen',
+                    preview: 'plugins/backimglayer/images/svqimagen.png', // ruta relativa, edite por la deseada
+                    layers: [capaTMS],
+                },
+                {
+                    id: 'hibrido',
+                    title: 'Híbrido',
+                    preview: 'plugins/backimglayer/images/svqhibrid.png', // ruta relativa, edite por la deseada
+                    layers: [new M.layer.WMTS({
+                            url: 'http://www.ign.es/wmts/pnoa-ma?',
+                            name: 'OI.OrthoimageCoverage',
+                            legend: 'Imagen (PNOA)',
+                            matrixSet: 'GoogleMapsCompatible',
+                            transparent: true,
+                            displayInLayerSwitcher: false,
+                            queryable: false,
+                            visible: true,
+                            format: 'image/png',
+                        }),
+                        new M.layer.WMTS({
+                            url: 'http://www.ign.es/wmts/ign-base?',
+                            name: 'IGNBaseOrto',
+                            matrixSet: 'GoogleMapsCompatible',
+                            legend: 'Mapa IGN',
+                            transparent: false,
+                            displayInLayerSwitcher: false,
+                            queryable: false,
+                            visible: true,
+                            format: 'image/png',
+                        })
+                    ],
+                },
+                {
+                    id: 'lidar',
+                    preview: 'plugins/backimglayer/images/svqlidar.png', // ruta relativa, edite por la deseada
+                    title: 'LIDAR',
+                    layers: [new M.layer.WMTS({
+                        url: 'https://wmts-mapa-lidar.idee.es/lidar?',
+                        name: 'EL.GridCoverageDSM',
+                        legend: 'Modelo Digital de Superficies LiDAR',
+                        matrixSet: 'GoogleMapsCompatible',
+                        transparent: false,
+                        displayInLayerSwitcher: false,
+                        queryable: false,
+                        visible: true,
+                        format: 'image/png',
+                    })],
+                },
+            ],
+        });
+          
+        mapjs.addPlugin(mp);
+
+        // window.onload = function() {
+        //     var elemento = document.getElementById("m-backimglayer-lyr-imagen")
+        //     elemento.onclick = function() {myFunction()};
+        //     function myFunction() {
+        //         if (elemento.classList.contains('activeBackimglayerDiv') == true ) {
+        //             capaTMS.getImpl().setOL3Layer(TMSLayer);
+        //         }
+        //     }
+        // };
+         
+    </script>
+</body>
+
+</html>

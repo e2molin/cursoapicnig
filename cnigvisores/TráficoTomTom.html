@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	<!-- fichero estilos -->
+	<link href="https://componentes.ign.es/api-core/assets/css/apiign.ol.min.css" rel="stylesheet" />
+	<link href="https://componentes.cnig.es/api-core/plugins/sharemap/sharemap.ol.min.css" rel="stylesheet" />
+
+	<!-- ficheros javascript -->
+	<script type="text/javascript" src="https://componentes.cnig.es/api-core/js/apiign.ol.min.js"></script>
+    <script type="text/javascript" src="https://componentes.cnig.es/api-core/js/configuration.js"></script>
+	
+	<link type="text/css" rel="stylesheet" href="https://componentes.cnig.es/api-core/assets/css/apiign.ol.min.css">
+
+    <style>
+      .map {
+        height: 90vh;
+        width: 100%;
+      }
+	 </style>
+    <title>API-CNIG</title>
+  </head>
+  <body>
+    <h2>Mapa tráfico TomTom-hackeado</h2>
+    <div id="map" class="map" ></div>
+	<!-- Popup -->
+	<div id="popup" ></div>
+		<script type="text/javascript">
+			M.proxy(false);
+			mapajs = M.map({
+			   container:"map",
+			   controls: ['panzoom', 'scale*true', 'scaleline', 'rotate', 'location', 'backgroundlayers'],
+			   zoom: 6,
+			   center: [-700000, 4900000],
+			});
+
+			var mapaOL = mapajs.getMapImpl();
+			
+			
+			var listEstilosCapas = { }
+			function rndInt() { return (Math.floor(Math.random() * 255) + 1).toString(); };
+			var vectorStyle = function(feature, resolution) {
+					//console.log(feature)
+					
+					if (!(feature.getProperties()["traffic_level"] in listEstilosCapas)){
+							if (feature.getProperties()["traffic_level"] > 0.8 ){
+								var stroke = new ol.style.Stroke({
+											color: 'rgba(0,255,0,0.9)',
+											width:2
+								});
+							}
+							else if (feature.getProperties()["traffic_level"] > 0.5 ){
+								var stroke = new ol.style.Stroke({
+											color: 'rgba(255,126,66,0.9)',
+											width:2
+								});
+							}
+							else if (feature.getProperties()["traffic_level"] > 0.0 ){
+								var stroke = new ol.style.Stroke({
+											color: 'rgba(255,0,0,0.9)',
+											width:2
+								});
+							}
+							
+							listEstilosCapas[feature.getProperties()["traffic_level"]] = new ol.style.Style({
+																		
+																			stroke: stroke,
+																		  });
+						} 
+					
+					return listEstilosCapas[feature.getProperties()["traffic_level"]]
+				  };
+			  
+			  var OL_capaMVT = new ol.layer.VectorTile({
+								  declutter: true,
+								  source: new ol.source.VectorTile({
+										attributions: " <a href=''>La Rioja y OSM</a>" ,
+										format: new ol.format.MVT(),
+										url: "https://a.api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=sATA9OwG11zrMKQcCxR3eSEjj2n8Jsrg&1637324528580"
+									  }),
+								 style: vectorStyle,    
+								 minZoom: 0,
+								 maxZoom: 22
+							  })
+				OL_capaMVT.setZIndex(999999);
+			
+			const capaMVT = new M.layer.MVT({}, {});
+
+			mapajs.addLayers(capaMVT);
+			
+			capaMVT.getImpl().setOL3Layer(OL_capaMVT);
+			
+			const popup = new ol.Overlay({
+				element: document.getElementById('popup'),
+				offset: [15, 15],
+  				stopEvent: false,
+				});
+			mapaOL.addOverlay(popup);
+
+
+			mapaOL.on('pointermove', function (evt) {
+				const element = popup.getElement();
+				element.innerHTML = ''
+				
+				mapaOL.forEachFeatureAtPixel(evt.pixel, function (f) {
+					
+
+					
+					const coordinate = evt.coordinate;
+					var cadOUT = '<hr/><table style="background: aliceblue;">';
+					for(var value in f.getProperties()){ 
+						cadOUT = cadOUT + 
+							`
+							<tr><td><span title=${value}></span> ${value}: ${f.get(value)}</td></tr>
+							`;
+					};
+					cadOUT = cadOUT +  "</table><hr/>";
+					element.innerHTML = cadOUT;
+					popup.setPosition(coordinate);
+					return true;
+				});
+
+			});
+
+
+
+			var myVar;
+			function myFunction() {
+				myVar = setInterval(alertFunc, 10000);
+			}
+
+			function alertFunc() {
+				OL_capaMVT.getSource().refresh();
+			}
+			myFunction();
+		</script>
+  </body>
+</html>
