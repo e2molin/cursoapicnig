@@ -1,5 +1,8 @@
 import './style.css'
 import Split from 'split-grid'
+import {encode, decode} from 'js-base64'
+
+
 
 /*
 const getEl = selector => document.querySelector(selector) // Con esta función no repetimos contantemente el document.querySelector
@@ -44,9 +47,9 @@ function init(){
 
   const [rawHTML, rawCSS, rawJS] = pathname.slice(1).split('%7C');
 
-  const html = window.atob(rawHTML);
-  const css = window.atob(rawCSS);
-  const js = window.atob(rawJS);
+  const html = decode(rawHTML);
+  const css = decode(rawCSS);
+  const js = decode(rawJS);
 
   $html.value = html;
   $css.value = css;
@@ -64,7 +67,8 @@ function update() {
   const css = $css.value;
   const js = $js.value;
 
-  const hashedCode = `${window.btoa(html)}|${window.btoa(css)}|${window.btoa(js)}`;
+  //const hashedCode = `${window.btoa(html)}|${window.btoa(css)}|${window.btoa(js)}`;
+  const hashedCode = `${encode(html)}|${encode(css)}|${encode(js)}`;
   window.history.replaceState(null,null, `/${hashedCode}`); // Así cambiamos la URL en el navegador sin dirigir
   
 

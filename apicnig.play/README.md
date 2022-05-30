@@ -50,6 +50,9 @@ npmjs.com/package/js-base64
 # Se instala con npm install --save js-base64
 ```
 
+Con esta librería ya tenemos soporte para los emojis.
+
+
 #### Entendiendo Base64
 
 [Enlace](develnotes.md)
