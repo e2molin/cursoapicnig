@@ -4,3 +4,7 @@ Estudiando las posibles formas de compartir snippets de código para enseñar el
 
 Banco de pruebas de la APICNIG.
 
+## Enlaces
+
+* [Prototipo de edición de código](apicnig.play/README.md)
+
