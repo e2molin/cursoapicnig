@@ -193,8 +193,40 @@ fs.writeFileSync('foo.jpeg',imageBuffer)
 
 Los archivos adjuntos del correo se transmiten en **Base64**.
 
+## Monaco Editor
+
+https://github.com/microsoft/monaco-editor
+
+```bash
+# Instalamos el paquete
+npm install monaco-editor -E
+
+# Configuramos
+# Usaremos la versión ESM (EMACSCRIPT Modules)
+```
+
+
+## Snippets de código
+
+### Selección de elemento
+
+Para simplificar los comandos de selección de objetos de nuestro DOM, podemos hacer una función que nos ayude. Quedaría algo así:
+
+```javascript
+const getEl = selector => document.querySelector(selector) // Con esta función no repetimos contantemente el document.querySelector
+const $js = getEl('#js');
+console.log($js)
+```
+Con esta función no repetimos contantemente el `document.querySelector`. Podemos reducir aún más esto de la siguiente manera, lo que le da una apariencia a **jquery**, pero ojo, no lo es en absoluto.
+
+```javascript
+const $ = selector => document.querySelector(selector); 
+const $js = $('#js');
+```
+
 
 ### Fuentes
 
 * [base64](https://www.base64encode.org/)
 * [ESLint y Prettier con Vite](https://www.youtube.com/watch?v=**3BHXuZvI4FI**)
+

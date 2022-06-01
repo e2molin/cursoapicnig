@@ -1,16 +1,21 @@
 import './style.css'
 import Split from 'split-grid'
 import {encode, decode} from 'js-base64'
+import * as monaco from 'monaco-editor'
+import HtmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import CssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import JsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+/*import { createEditor } from '/editor.js'*/
 
+// Creamos un objeto en el window que se llama MonacoEnvironment
+window.MonacoEnvironment = {
+  getWorker (_,label){
+    if (label==='html') return new HtmlWorker()
+    if (label==='javascript') return new JsWorker()
+    if (label==='css') return new CssWorker()
+  }
+}
 
-
-/*
-const getEl = selector => document.querySelector(selector) // Con esta función no repetimos contantemente el document.querySelector
-const $js = getEl('#js');
-const $css = getEl('#css');
-const $html = getEl('#html');
-// Refactorizamos esto 👇
-*/
 const $ = selector => document.querySelector(selector) // Con esta función no repetimos contantemente el document.querySelector
 
 Split({
@@ -26,46 +31,77 @@ Split({
 
 });
 
-/*
-document.querySelector('#app').innerHTML = `
-  <h1>Hello Vite!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`
-*/
-
 const $js = $('#js');
 const $css = $('#css');
 const $html = $('#html');
 
-$js.addEventListener('input', update);
-$css.addEventListener('input', update);
-$html.addEventListener('input', update);
+const { pathname } = window.location; // Para que esta asignación funcione, la variable debe llamarse igual que la propiedad
 
-function init(){
+const [rawHTML, rawCSS, rawJS] = pathname.slice(1).split('%7C');
 
-  const { pathname } = window.location; // Para que esta asignación funcione, la variable debe llamarse igual que la propiedad
+const html = rawHTML ? decode(rawHTML): '';
+const css = rawCSS ? decode(rawCSS): '';
+const js = rawJS ? decode(rawJS): '';
 
-  const [rawHTML, rawCSS, rawJS] = pathname.slice(1).split('%7C');
 
-  const html = decode(rawHTML);
-  const css = decode(rawCSS);
-  const js = decode(rawJS);
+/**
+ * Opciones de configuración
+ * https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html
+ */
 
-  $html.value = html;
-  $css.value = css;
-  $js.value = js;
-
-  const htmlForPreview=createHTML({html,css,js});
-  $('iframe').setAttribute('srcdoc',htmlForPreview);
-
+const COMMON_EDITOR_OPTIONS = {
+  automaticLayout: true,
+  theme: 'vs-dark',
+  fontSize: 14,
+  minimap: {
+    enabled: false
+  },
+  padding: {
+    top: 16
+  },
+  scrollBeyondLastLine: false,
+  lineNumbers: false,
+  roundedSelection: false,
+  wordWrap: true,
+  fontFamily: 'Cascadia Code,Monaco,monospace',
+  fontLigatures: true,
 }
 
 
+const htmlEditor = monaco.editor.create($html,{
+  value: html,
+  language: 'html',
+  ...COMMON_EDITOR_OPTIONS
+})
+
+const cssEditor = monaco.editor.create($css,{
+  value: css,
+  language: 'css',
+  ...COMMON_EDITOR_OPTIONS
+})
+
+const jsEditor = monaco.editor.create($js,{
+  value: js,
+  language: 'javascript',
+  ...COMMON_EDITOR_OPTIONS
+})
+
+
+// Al usar MonacoEditor cambia la definición de eventos
+htmlEditor.onDidChangeModelContent((e)=>{
+  update();// Con esto recuperamos el contenido
+})
+cssEditor.onDidChangeModelContent(update)
+jsEditor.onDidChangeModelContent(update)
+
+const htmlForPreview=createHTML({html,css,js});
+$('iframe').setAttribute('srcdoc',htmlForPreview);
+
 
 function update() {
-  const html = $html.value;
-  const css = $css.value;
-  const js = $js.value;
+  const html = htmlEditor.getValue();
+  const css =  cssEditor.getValue();
+  const js =  jsEditor.getValue();
 
   //const hashedCode = `${window.btoa(html)}|${window.btoa(css)}|${window.btoa(js)}`;
   const hashedCode = `${encode(html)}|${encode(css)}|${encode(js)}`;
@@ -76,8 +112,7 @@ function update() {
   $('iframe').setAttribute('srcdoc',htmlForPreview);
 }
 
-const createHTML = ({html,css,js}) =>{
-
+function createHTML ({html,css,js}) {
 
   return `
     <!DOCTYPE html>
@@ -96,7 +131,4 @@ const createHTML = ({html,css,js}) =>{
     </html>
   `
 
-
 }
-
-init();

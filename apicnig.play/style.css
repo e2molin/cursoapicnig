@@ -44,6 +44,7 @@ textarea {
   background-repeat: no-repeat;
   background-size: 36px;
   background-position: calc(100% - 16px) calc(100% - 16px);
+
   box-shadow: 0 0 0 .2px rgba(255,255,255,.3);
   width: 100%;
   border: 0;
@@ -59,16 +60,36 @@ textarea::focus {
   outline: 0;
 }
 
-#html {
-  background-image: url('/assets/html5.svg');
-
+.editor {
+  position: relative;
 }
 
-#css {
+/* 
+  Este pseudoelemento se dibuja después del content 
+  ::before
+  {content}
+  ::after
+*/
+.editor::after {
+  content: '';
+  position: absolute; 
+  right:16px;
+  bottom: 16px;
+  width:48px;
+  height:48px;
+  z-index: 10;
+  background-repeat: no-repeat;
+}
+
+#html::after {
+  background-image: url('/assets/html5.svg');
+}
+
+#css::after {
   background-image: url('/assets/css3.svg');
 }
 
-#js {
+#js::after {
   background-image: url('/assets/js.svg');
 }
 
@@ -78,8 +99,11 @@ textarea::focus {
 */
 .grid {
   display: grid;
-  grid-template-rows: 1fr 5px 1fr; /* Grosor del separador horizontal. Antes 10 */
-  grid-template-columns: 1fr 5px 1fr; /* Grosor del separador vertical. Antes 10 */
+  /*grid-template-rows: 1fr 5px 1fr;*/ /* Grosor del separador horizontal. Antes 10 */
+  /*grid-template-columns: 1fr 5px 1fr;*/ /* Grosor del separador vertical. Antes 10 */
+  grid-template-rows: 49.8% 0.4% 49.8%; /* Grosor del separador horizontal. Antes 10 */
+  grid-template-columns: 49.8% 0.4% 49.8%; /* Grosor del separador vertical. Antes 10 */
+
   height: 100vh;
   width: 100vw;
 }
@@ -96,22 +120,7 @@ textarea::focus {
   cursor: row-resize;
 }
 
-/*
-.gutter-col {
-  grid-row: 1/-1;
-  cursor: col-resize;
-}
+/* Monaco Editor*/
+.monaco-editor {
 
-.gutter-col-1 {
-  grid-column: 2;
 }
-
-.gutter-row {
-  grid-column: 1/-1;
-  cursor: row-resize;
-}
-
-.gutter-row-1 {
-  grid-row: 2;
-}
-*/
