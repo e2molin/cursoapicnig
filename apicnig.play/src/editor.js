@@ -1,4 +1,9 @@
 import * as monaco from 'monaco-editor'
+import { emmetHTML } from 'emmet-monaco-es'
+import HtmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import CssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import JsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+
 
 /**
  * Opciones de configuración
@@ -8,6 +13,7 @@ import * as monaco from 'monaco-editor'
   automaticLayout: true,
   theme: 'vs-dark',
   fontSize: 14,
+  fixedOverflowWidgets: true,
   minimap: {
     enabled: false
   },
@@ -22,8 +28,18 @@ import * as monaco from 'monaco-editor'
   fontLigatures: true,
 }
 
+emmetHTML(monaco)
+
+window.MonacoEnvironment = {
+  getWorker (_, label) {
+    if (label === 'html') return new HtmlWorker()
+    if (label === 'javascript') return new JsWorker()
+    if (label === 'css') return new CssWorker()
+  }
+}
+
 export const createEditor = ({ domElement, language, value }) => {
-  monaco.editor.create(domElement, {
+  return monaco.editor.create(domElement, {
     value,
     language,
     ...COMMON_EDITOR_OPTIONS
