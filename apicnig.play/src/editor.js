@@ -3,7 +3,15 @@ import { emmetHTML } from 'emmet-monaco-es'
 import HtmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import CssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import JsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import { getState } from './state.js'
 
+const {
+  fontSize,
+  lineNumbers,
+  minimap,
+  theme,
+  wordWrap
+} = getState()
 
 /**
  * Opciones de configuración

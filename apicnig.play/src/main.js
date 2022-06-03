@@ -1,9 +1,15 @@
 import './style.css'
-import Split from 'split-grid'
+
+import { initEditorHotKeys } from './utils/editor-hotkeys.js'
 import {encode, decode} from 'js-base64'
 import { createEditor } from './editor.js'
 import debounce from './utils/debounce.js'
 import { $ } from './utils/dom.js'
+import { subscribe } from './state'
+
+import './aside.js' // Manejo de la aside bar
+import './settings.js'
+import './grid.js'
 
 const $js = $('#js');
 const $css = $('#css');
@@ -21,24 +27,37 @@ const htmlEditor = createEditor({ domElement: $html, language: 'html', value: ht
 const cssEditor = createEditor({ domElement: $css, language: 'css', value: css })
 const jsEditor = createEditor({ domElement: $js, language: 'javascript', value: js })
 
-Split({
-  columnGutters:[{
-    track:1,
-    element: $('.vertical-gutter')
-  }],
-  rowGutters:[{
-    track:1,
-    element: $('.horizontal-gutter')
+subscribe(state => {
+  console.log('subscribe', state)
+  const EDITORS = [htmlEditor, cssEditor, jsEditor]
+  EDITORS.forEach(editor => {
+    const { minimap, ...restOfOptions } = state
 
-  }]
-});
+    const newOptions = {
+      ...restOfOptions,
+      minimap: {
+        enabled: minimap
+      }
+    }
+
+    editor.updateOptions({
+      ...editor.getRawOptions(),
+      ...newOptions
+    })
+  })
+})
+
+
 
 const MS_UPDATE_DEBOUNCED_TIME = 200
 const debouncedUpdate = debounce(update, MS_UPDATE_DEBOUNCED_TIME)
 
+htmlEditor.focus()
 htmlEditor.onDidChangeModelContent(debouncedUpdate)
 cssEditor.onDidChangeModelContent(debouncedUpdate)
 jsEditor.onDidChangeModelContent(debouncedUpdate)
+
+initEditorHotKeys({ htmlEditor, cssEditor, jsEditor })
 
 const htmlForPreview=createHTML({html,css,js});
 $('iframe').setAttribute('srcdoc',htmlForPreview);

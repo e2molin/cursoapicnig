@@ -1,3 +1,9 @@
+:root {
+  --bgc-input: #2f363d;
+  --bdc-input: rgb(27, 31, 35);
+  --c-input: rgb(225, 228, 232);
+}
+
 body{
   background-color: #f1f1f1;
   color:#333;
@@ -11,7 +17,6 @@ body{
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
 }
 
 * {
@@ -26,42 +31,23 @@ body{
 }
 
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  display: grid;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;  
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+  grid-template-columns: 72px 1fr;
 }
 
 iframe{
-  width: 100%;
-  height: 100%;
   border: 0;
   background-color: #fff;
-}
-
-textarea {
-  background-color: #333;
-  background-repeat: no-repeat;
-  background-size: 36px;
-  background-position: calc(100% - 16px) calc(100% - 16px);
-
-  box-shadow: 0 0 0 .2px rgba(255,255,255,.3);
   width: 100%;
-  border: 0;
-  color: #fff;
-  font-family: monospace;
   height: 100%;
-  font-size: 24px;
-  resize: none;
-  padding: 24px;
-}
-
-textarea::focus {
-  outline: 0;
 }
 
 .editor {
   position: relative;
+  overflow: hidden;
 }
 
 /* 
@@ -99,28 +85,140 @@ textarea::focus {
 */
 .grid {
   display: grid;
-  /*grid-template-rows: 1fr 5px 1fr;*/ /* Grosor del separador horizontal. Antes 10 */
-  /*grid-template-columns: 1fr 5px 1fr;*/ /* Grosor del separador vertical. Antes 10 */
-  grid-template-rows: 49.8% 0.4% 49.8%; /* Grosor del separador horizontal. Antes 10 */
-  grid-template-columns: 49.8% 0.4% 49.8%; /* Grosor del separador vertical. Antes 10 */
-
+  grid-template-columns: 1fr 5px 1fr;
+  grid-template-rows: 1fr 5px 1fr;
   height: 100vh;
-  width: 100vw;
 }
 
 .vertical-gutter{
+  cursor: col-resize;
   grid-area: 1 / 2 / 4 / 2;
   border: solid 1px #fff;
-  cursor: col-resize;
 }
 
 .horizontal-gutter{
+  cursor: row-resize;
   grid-area: 2 / 1 / 2 / 4;
   border: solid 1px #fff;
-  cursor: row-resize;
 }
 
-/* Monaco Editor*/
-.monaco-editor {
+aside {
+  background: #2d323c;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
+aside button {
+  background: transparent;
+  border: 0;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  width: 100%;
+  opacity: .5;
+  transition: opacity .1s ease;
+  padding: 16px 0;
+}
+
+aside button.is-active {
+  opacity: 1;
+  border-left: 3px solid #c5c5c5;
+}
+
+aside button:hover {
+  opacity: 1;
+}
+
+aside svg {
+  width: 40px;
+  height: 40px;
+}
+
+aside header,
+aside footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#settings {
+  height: 100vh;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+select {
+  background-color: var(--bgc-input);
+  color: var(--c-input);
+  border: 1px solid var(--bdc-input);
+  height: 26px;
+  margin-top: 8px;
+  padding: 2px 8px;
+  width: 100%;
+}
+
+.settings {
+  & .settings-content {
+    display: grid;
+    place-content: center;
+    height: 100%;
+  }
+
+  & .settings-type {
+    opacity: .6;
+  }
+
+  & .settings-item {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 500px;
+    padding: 1em;
+  }
+
+  & .settings-item:hover {
+    background: rgba(128, 128, 128, 0.14);
+  }
+
+  & .checkbox {
+    display: flex;
+    align-items: center;
+  }
+
+  & .checkbox input {
+    display: none;
+  }
+
+  & .checkbox span {
+    display: flex;
+    align-items: center;
+  }
+
+  & .checkbox input:checked + span::before {
+    content: '✓';
+  }
+
+  & .checkbox span::before {
+    background: #444d56;
+    border: 1px solid #1b1f23;
+    border-radius: 3px;
+    color: #e1e4e8;
+    content: '';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: 9px;
+  }
+
+  & .input {
+    background-color: var(--bgc-input);
+    color: var(--c-input);
+    border: 1px solid var(--bdc-input);
+    padding: .3em;
+  }
 }
